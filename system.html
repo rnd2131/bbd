@@ -330,8 +330,14 @@
         doc.text(`${expense.name}: $${expense.amount.toFixed(2)}`, 20, 110 + incomes.length * 10 + index * 10);
       });
 
-      // Save the document
-      doc.save('income-expense-tracker.pdf');
+      // Generate blob and create download link
+      const pdfBlob = doc.output('blob');
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'income-expense-tracker.pdf';
+      link.click();
+      URL.revokeObjectURL(url);
     }
 
     function nextMonth() {
