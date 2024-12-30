@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Income and Expense Tracker</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -99,9 +100,9 @@
 
 
     <div class="result">
-        <p>Total Income: <span id="total-income">0</span></p>
-        <p>Total Expenses: <span id="total-expenses">0</span></p>
-        <p>Remaining Balance: <span id="remaining-balance">0</span></p>
+        <p>Total Income: <span id="total-income">0</span> تومان</p>
+        <p>Total Expenses: <span id="total-expenses">0</span> تومان</p>
+        <p>Remaining Balance: <span id="remaining-balance">0</span> تومان</p>
     </div>
 
     <label for="income-name">Income Name:</label>
@@ -195,7 +196,7 @@
       const incomeBox = document.createElement('div');
       incomeBox.className = 'box';
       incomeBox.id = `income-${id}`;
-      incomeBox.innerHTML = `${name}: $${amount.toFixed(2)}
+      incomeBox.innerHTML = `${name}: ${amount.toFixed(2)} تومان
         <button class="edit-button" onclick="openEditIncomePopup(${id})">Edit</button>
         <button onclick="deleteIncome(${id})">Delete</button>`;
       incomeList.appendChild(incomeBox);
@@ -226,7 +227,7 @@
       const expenseBox = document.createElement('div');
       expenseBox.className = 'box';
       expenseBox.id = `expense-${id}`;
-      expenseBox.innerHTML = `${name}: $${amount.toFixed(2)}
+      expenseBox.innerHTML = `${name}: ${amount.toFixed(2)} تومان
         <button class="edit-button" onclick="openEditExpensePopup(${id})">Edit</button>
         <button onclick="deleteExpense(${id})">Delete</button>`;
       expenseList.appendChild(expenseBox);
@@ -241,7 +242,7 @@
         income.name = newName;
         income.amount = newAmount;
         totalIncome += newAmount;
-        document.getElementById(`income-${id}`).innerHTML = `${newName}: $${newAmount.toFixed(2)}
+        document.getElementById(`income-${id}`).innerHTML = `${newName}: ${newAmount.toFixed(2)} تومان
           <button class="edit-button" onclick="openEditIncomePopup(${id})">Edit</button>
           <button onclick="deleteIncome(${id})">Delete</button>`;
         updateResults();
@@ -258,7 +259,7 @@
         expense.name = newName;
         expense.amount = newAmount;
         totalExpenses += newAmount;
-        document.getElementById(`expense-${id}`).innerHTML = `${newName}: $${newAmount.toFixed(2)}
+        document.getElementById(`expense-${id}`).innerHTML = `${newName}: ${newAmount.toFixed(2)} تومان
           <button class="edit-button" onclick="openEditExpensePopup(${id})">Edit</button>
           <button onclick="deleteExpense(${id})">Delete</button>`;
         updateResults();
@@ -305,32 +306,51 @@
     function exportToPDF() {
       const { jsPDF } = window.jspdf;
 
-      // Create a new instance of jsPDF
-      const doc = new jsPDF();
+      // Create a new instance of jsPDF with RTL support
+      const doc = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4',
+        putOnlyUsedFonts: true
+      });
 
-      // Add the title
+      // Add title
+      doc.setFont("helvetica");
       doc.setFontSize(18);
-      doc.text('Income and Expense Tracker', 20, 20);
+      doc.text('Income and Expense Tracker', doc.internal.pageSize.width / 2, 20, { align: 'center' });
 
-      // Add total income, expenses, and balance
+      // Add summary
       doc.setFontSize(12);
-      doc.text(`Total Income: $${totalIncome.toFixed(2)}`, 20, 40);
-      doc.text(`Total Expenses: $${totalExpenses.toFixed(2)}`, 20, 50);
-      doc.text(`Remaining Balance: $${(totalIncome - totalExpenses).toFixed(2)}`, 20, 60);
+      doc.text(`Total Income: ${totalIncome.toFixed(2)} تومان`, 20, 40);
+      doc.text(`Total Expenses: ${totalExpenses.toFixed(2)} تومان`, 20, 50);
+      doc.text(`Remaining Balance: ${(totalIncome - totalExpenses).toFixed(2)} تومان`, 20, 60);
 
-      // Add income details to PDF
-      doc.text('Income Details:', 20, 80);
-      incomes.forEach((income, index) => {
-        doc.text(`${income.name}: $${income.amount.toFixed(2)}`, 20, 90 + index * 10);
+      // Sort incomes and expenses by amount
+      const sortedIncomes = [...incomes].sort((a, b) => b.amount - a.amount);
+      const sortedExpenses = [...expenses].sort((a, b) => b.amount - a.amount);
+
+      // Create income table
+      doc.autoTable({
+        startY: 80,
+        head: [['Income Name', 'Amount (تومان)']],
+        body: sortedIncomes.map(income => [income.name, income.amount.toFixed(2)]),
+        theme: 'grid',
+        headStyles: { fillColor: [240, 165, 0] },
+        styles: { font: "helvetica", fontSize: 10 },
+        margin: { top: 80 }
       });
 
-      // Add expense details to PDF
-      doc.text('Expense Details:', 20, 90 + incomes.length * 10 + 10);
-      expenses.forEach((expense, index) => {
-        doc.text(`${expense.name}: $${expense.amount.toFixed(2)}`, 20, 110 + incomes.length * 10 + index * 10);
+      // Create expense table
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 20,
+        head: [['Expense Name', 'Amount (تومان)']],
+        body: sortedExpenses.map(expense => [expense.name, expense.amount.toFixed(2)]),
+        theme: 'grid',
+        headStyles: { fillColor: [255, 68, 68] },
+        styles: { font: "helvetica", fontSize: 10 }
       });
 
-      // Generate blob and create download link
+      // Generate and download PDF
       const pdfBlob = doc.output('blob');
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
