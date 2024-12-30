@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Income and Expense Tracker</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: transparent;
+      color: #ffffff;
+      margin: 20px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background-color: #1e1e1e;
+      padding: 20px;
+      border-radius: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #f0a500;
+    }
+    label {
+      font-size: 1em;
+      color: #bdbdbd;
+    }
+    input {
+      width: 95%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #333;
+      border-radius: 5px;
+      background-color: #252525;
+      color: #ffffff;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #f0a500;
+      color: #121212;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #d48a00;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.1em;
+      background-color: #252525;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      margin-bottom: 20px;
+    }
+    .result p {
+      margin: 8px 0;
+    }
+    span {
+      font-weight: bold;
+      color: #f0a500;
+    }
+    .box {
+      background-color: #252525;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+    .box button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: auto;
+      padding: 5px;
+      background-color: #f00;
+      color: white;
+      font-size: 0.9em;
+      border-radius: 3px;
+    }
+    .edit-button {
+      position: absolute !important;
+      right: 60px !important;
+      margin-right: 5%;
+      background-color: #ffa500 !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+
+    <div class="result">
+        <p>Total Income: <span id="total-income">0</span></p>
+        <p>Total Expenses: <span id="total-expenses">0</span></p>
+        <p>Remaining Balance: <span id="remaining-balance">0</span></p>
+    </div>
+
+    <label for="income-name">Income Name:</label>
+    <input type="text" id="income-name" placeholder="Enter income name">
+    <label for="income-amount">Income Amount:</label>
+    <input type="number" id="income-amount" placeholder="Enter income amount">
+    <button onclick="addIncome()">Add Income</button>
+
+    <label for="expense-name">Expense Name:</label>
+    <input type="text" id="expense-name" placeholder="Enter expense name">
+    <label for="expense-amount">Expense Amount:</label>
+    <input type="number" id="expense-amount" placeholder="Enter expense amount">
+    <button onclick="addExpense()">Add Expense</button>
+
+    <div>
+      <h2>Income Details</h2>
+      <div id="income-list"></div>
+    </div>
+
+    <div>
+      <h2>Expense Details</h2>
+      <div id="expense-list"></div>
+    </div>
+    <button onclick="nextMonth()" style="margin-bottom: 10px; background-color: #ff4444; margin-top: 20px;">Next Month</button>
+    <button onclick="exportToPDF()" style="margin-bottom: 20px;">Export to PDF</button>
+    <button onclick="resetAll()" style="background-color: #f00; margin-bottom: 10px;">Reset</button>
+  </div>
+
+  <script>
+    let totalIncome = 0;
+    let totalExpenses = 0;
+    let incomes = JSON.parse(localStorage.getItem('incomes')) || [];
+    let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+
+    function saveToLocalStorage() {
+      localStorage.setItem('incomes', JSON.stringify(incomes));
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+      localStorage.setItem('totalIncome', totalIncome);
+      localStorage.setItem('totalExpenses', totalExpenses);
+    }
+
+    function resetAll() {
+      if (confirm('Are you sure you want to reset all data? This action cannot be undone.')) {
+        // Clear all data
+        incomes = [];
+        expenses = [];
+        totalIncome = 0;
+        totalExpenses = 0;
+        
+        // Clear localStorage
+        localStorage.clear();
+        
+        // Clear the display
+        document.getElementById('income-list').innerHTML = '';
+        document.getElementById('expense-list').innerHTML = '';
+        document.getElementById('total-income').textContent = '0.00';
+        document.getElementById('total-expenses').textContent = '0.00';
+        document.getElementById('remaining-balance').textContent = '0.00';
+        document.getElementById('remaining-balance').style.color = '#ffffff';
+        
+        // Clear input fields
+        document.getElementById('income-name').value = '';
+        document.getElementById('income-amount').value = '';
+        document.getElementById('expense-name').value = '';
+        document.getElementById('expense-amount').value = '';
+      }
+    }
+
+    function addIncome() {
+      const incomeNameInput = document.getElementById('income-name');
+      const incomeAmountInput = document.getElementById('income-amount');
+      const incomeName = incomeNameInput.value.trim();
+      const incomeAmount = parseFloat(incomeAmountInput.value);
+
+      if (incomeName && !isNaN(incomeAmount) && incomeAmount > 0) {
+        const incomeId = Date.now();
+        incomes.push({ id: incomeId, name: incomeName, amount: incomeAmount });
+        totalIncome += incomeAmount;
+        renderIncome(incomeId, incomeName, incomeAmount);
+        incomeNameInput.value = '';
+        incomeAmountInput.value = '';
+        updateResults();
+        saveToLocalStorage();
+      } else {
+        alert('Please enter a valid income name and amount');
+      }
+    }
+
+    function renderIncome(id, name, amount) {
+      const incomeList = document.getElementById('income-list');
+      const incomeBox = document.createElement('div');
+      incomeBox.className = 'box';
+      incomeBox.id = `income-${id}`;
+      incomeBox.innerHTML = `${name}: $${amount.toFixed(2)}
+        <button class="edit-button" onclick="openEditIncomePopup(${id})">Edit</button>
+        <button onclick="deleteIncome(${id})">Delete</button>`;
+      incomeList.appendChild(incomeBox);
+    }
+
+    function addExpense() {
+      const expenseNameInput = document.getElementById('expense-name');
+      const expenseAmountInput = document.getElementById('expense-amount');
+      const expenseName = expenseNameInput.value.trim();
+      const expenseAmount = parseFloat(expenseAmountInput.value);
+
+      if (expenseName && !isNaN(expenseAmount) && expenseAmount > 0) {
+        const expenseId = Date.now();
+        expenses.push({ id: expenseId, name: expenseName, amount: expenseAmount });
+        totalExpenses += expenseAmount;
+        renderExpense(expenseId, expenseName, expenseAmount);
+        expenseNameInput.value = '';
+        expenseAmountInput.value = '';
+        updateResults();
+        saveToLocalStorage();
+      } else {
+        alert('Please enter a valid expense name and amount');
+      }
+    }
+
+    function renderExpense(id, name, amount) {
+      const expenseList = document.getElementById('expense-list');
+      const expenseBox = document.createElement('div');
+      expenseBox.className = 'box';
+      expenseBox.id = `expense-${id}`;
+      expenseBox.innerHTML = `${name}: $${amount.toFixed(2)}
+        <button class="edit-button" onclick="openEditExpensePopup(${id})">Edit</button>
+        <button onclick="deleteExpense(${id})">Delete</button>`;
+      expenseList.appendChild(expenseBox);
+    }
+
+    function openEditIncomePopup(id) {
+      const income = incomes.find(i => i.id === id);
+      const newName = prompt('Edit income name:', income.name);
+      const newAmount = parseFloat(prompt('Edit income amount:', income.amount));
+      if (newName && !isNaN(newAmount) && newAmount > 0) {
+        totalIncome -= income.amount;
+        income.name = newName;
+        income.amount = newAmount;
+        totalIncome += newAmount;
+        document.getElementById(`income-${id}`).innerHTML = `${newName}: $${newAmount.toFixed(2)}
+          <button class="edit-button" onclick="openEditIncomePopup(${id})">Edit</button>
+          <button onclick="deleteIncome(${id})">Delete</button>`;
+        updateResults();
+        saveToLocalStorage();
+      }
+    }
+
+    function openEditExpensePopup(id) {
+      const expense = expenses.find(e => e.id === id);
+      const newName = prompt('Edit expense name:', expense.name);
+      const newAmount = parseFloat(prompt('Edit expense amount:', expense.amount));
+      if (newName && !isNaN(newAmount) && newAmount > 0) {
+        totalExpenses -= expense.amount;
+        expense.name = newName;
+        expense.amount = newAmount;
+        totalExpenses += newAmount;
+        document.getElementById(`expense-${id}`).innerHTML = `${newName}: $${newAmount.toFixed(2)}
+          <button class="edit-button" onclick="openEditExpensePopup(${id})">Edit</button>
+          <button onclick="deleteExpense(${id})">Delete</button>`;
+        updateResults();
+        saveToLocalStorage();
+      }
+    }
+
+    function deleteIncome(id) {
+      const income = incomes.find(i => i.id === id);
+      if (confirm('Are you sure you want to delete this income?')) {
+        totalIncome -= income.amount;
+        incomes = incomes.filter(i => i.id !== id);
+        document.getElementById(`income-${id}`).remove();
+        updateResults();
+        saveToLocalStorage();
+      }
+    }
+
+    function deleteExpense(id) {
+      const expense = expenses.find(e => e.id === id);
+      if (confirm('Are you sure you want to delete this expense?')) {
+        totalExpenses -= expense.amount;
+        expenses = expenses.filter(e => e.id !== id);
+        document.getElementById(`expense-${id}`).remove();
+        updateResults();
+        saveToLocalStorage();
+      }
+    }
+
+    function updateResults() {
+      const remainingBalance = totalIncome - totalExpenses;
+      document.getElementById('total-income').textContent = totalIncome.toFixed(2);
+      document.getElementById('total-expenses').textContent = totalExpenses.toFixed(2);
+      document.getElementById('remaining-balance').textContent = remainingBalance.toFixed(2);
+      
+      // Update remaining balance color based on whether it's positive or negative
+      if (remainingBalance >= 0) {
+        document.getElementById('remaining-balance').style.color = '#00ff00'; // Green for positive
+      } else {
+        document.getElementById('remaining-balance').style.color = '#ff0000'; // Red for negative
+      }
+    }
+
+    function exportToPDF() {
+      const { jsPDF } = window.jspdf;
+
+      // Create a new instance of jsPDF
+      const doc = new jsPDF();
+
+      // Add the title
+      doc.setFontSize(18);
+      doc.text('Income and Expense Tracker', 20, 20);
+
+      // Add total income, expenses, and balance
+      doc.setFontSize(12);
+      doc.text(`Total Income: $${totalIncome.toFixed(2)}`, 20, 40);
+      doc.text(`Total Expenses: $${totalExpenses.toFixed(2)}`, 20, 50);
+      doc.text(`Remaining Balance: $${(totalIncome - totalExpenses).toFixed(2)}`, 20, 60);
+
+      // Add income details to PDF
+      doc.text('Income Details:', 20, 80);
+      incomes.forEach((income, index) => {
+        doc.text(`${income.name}: $${income.amount.toFixed(2)}`, 20, 90 + index * 10);
+      });
+
+      // Add expense details to PDF
+      doc.text('Expense Details:', 20, 90 + incomes.length * 10 + 10);
+      expenses.forEach((expense, index) => {
+        doc.text(`${expense.name}: $${expense.amount.toFixed(2)}`, 20, 110 + incomes.length * 10 + index * 10);
+      });
+
+      // Save the document
+      doc.save('income-expense-tracker.pdf');
+    }
+
+    function nextMonth() {
+      if (confirm('Are you sure you want to move to next month?')) {
+        // Ask if user wants to export to PDF
+        const wantsPDF = confirm('Would you like to export current data to PDF?');
+        if (wantsPDF) {
+          exportToPDF();
+        }
+        
+        // Store the remaining balance
+        const remainingBalance = totalIncome - totalExpenses;
+        
+        // Clear incomes and expenses arrays
+        incomes = [];
+        expenses = [];
+        
+        // Reset totals
+        totalIncome = 0;
+        totalExpenses = 0;
+        
+        // Add remaining balance to appropriate category
+        if (remainingBalance > 0) {
+          const incomeId = Date.now();
+          incomes.push({ id: incomeId, name: "Previous Month Balance", amount: remainingBalance });
+          totalIncome = remainingBalance;
+          renderIncome(incomeId, "Previous Month Balance", remainingBalance);
+        } else if (remainingBalance < 0) {
+          const expenseId = Date.now();
+          const absBalance = Math.abs(remainingBalance);
+          expenses.push({ id: expenseId, name: "Previous Month Balance", amount: absBalance });
+          totalExpenses = absBalance;
+          renderExpense(expenseId, "Previous Month Balance", absBalance);
+        }
+        
+        // Clear the displays
+        document.getElementById('income-list').innerHTML = '';
+        document.getElementById('expense-list').innerHTML = '';
+        
+        // Re-render any remaining balance entries
+        if (remainingBalance > 0) {
+          incomes.forEach(income => renderIncome(income.id, income.name, income.amount));
+        } else if (remainingBalance < 0) {
+          expenses.forEach(expense => renderExpense(expense.id, expense.name, expense.amount));
+        }
+        
+        // Update display
+        updateResults();
+        
+        // Save the new state
+        saveToLocalStorage();
+      }
+    }
+
+    // Initial render
+    totalIncome = parseFloat(localStorage.getItem('totalIncome')) || 0;
+    totalExpenses = parseFloat(localStorage.getItem('totalExpenses')) || 0;
+    incomes.forEach(income => renderIncome(income.id, income.name, income.amount));
+    expenses.forEach(expense => renderExpense(expense.id, expense.name, expense.amount));
+    updateResults();
+  </script>
+</body>
