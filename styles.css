@@ -17,6 +17,7 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
+<<<<<<< HEAD
     padding: 1.2em 3em;
     border-radius: 30px;
     margin: 15px 30px;
@@ -31,6 +32,13 @@ nav {
 @keyframes navFloat {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-5px); }
+=======
+    padding: 1em 2em;
+    border-radius: 50px 0 0 50px;
+    margin: 20px;
+    margin-right: 00;
+    margin-top: 10px;
+>>>>>>> 9a9b9df2b5046f1c7761613febbb8f1fef2acabe
 }
 
 .nav-logo {
@@ -129,12 +137,21 @@ nav {
         display: none;
         flex-direction: column;
         position: absolute;
+<<<<<<< HEAD
         top: 80px;
         right: 30px;
         background-color: rgba(30, 30, 30, 0.98);
         width: 250px;
         padding: 1.5em;
         border-radius: 0 0 20px 20px;
+=======
+        top: 60px;
+        right: 0px;
+        background-color: #1e1e1e ;
+        width: 200px;
+        padding: 1em;
+        border-radius: 0px 0px 5px 100px;
+>>>>>>> 9a9b9df2b5046f1c7761613febbb8f1fef2acabe
         direction: rtl;
         backdrop-filter: blur(10px);
     }
