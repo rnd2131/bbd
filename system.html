@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Income and Expense Tracker</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -93,39 +93,54 @@
       margin-right: 5%;
       background-color: #ffa500 !important;
     }
+    .section {
+      background-color: #252525;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+    }
+    .section h2 {
+      color: #f0a500;
+      margin-top: 0;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-
-
     <div class="result">
-        <p>Total Income: <span id="total-income">0</span> تومان</p>
-        <p>Total Expenses: <span id="total-expenses">0</span> تومان</p>
-        <p>Remaining Balance: <span id="remaining-balance">0</span> تومان</p>
+        <p>Total Income: <span id="total-income">0</span> T</p>
+        <p>Total Expenses: <span id="total-expenses">0</span> T</p>
+        <p>Remaining Balance: <span id="remaining-balance">0</span> T</p>
     </div>
 
-    <label for="income-name">Income Name:</label>
-    <input type="text" id="income-name" placeholder="Enter income name">
-    <label for="income-amount">Income Amount:</label>
-    <input type="number" id="income-amount" placeholder="Enter income amount">
-    <button onclick="addIncome()">Add Income</button>
+    <div class="section">
+      <h2>Income Section</h2>
+      <label for="income-name">Income Name:</label>
+      <input type="text" id="income-name" placeholder="Enter income name">
+      <label for="income-amount">Income Amount:</label>
+      <input type="number" id="income-amount" placeholder="Enter income amount">
+      <button onclick="addIncome()">Add Income</button>
 
-    <label for="expense-name">Expense Name:</label>
-    <input type="text" id="expense-name" placeholder="Enter expense name">
-    <label for="expense-amount">Expense Amount:</label>
-    <input type="number" id="expense-amount" placeholder="Enter expense amount">
-    <button onclick="addExpense()">Add Expense</button>
-
-    <div>
-      <h2>Income Details</h2>
-      <div id="income-list"></div>
+      <div>
+        <h2>Income Details</h2>
+        <div id="income-list"></div>
+      </div>
     </div>
 
-    <div>
-      <h2>Expense Details</h2>
-      <div id="expense-list"></div>
+    <div class="section">
+      <h2>Expense Section</h2>
+      <label for="expense-name">Expense Name:</label>
+      <input type="text" id="expense-name" placeholder="Enter expense name">
+      <label for="expense-amount">Expense Amount:</label>
+      <input type="number" id="expense-amount" placeholder="Enter expense amount">
+      <button onclick="addExpense()">Add Expense</button>
+
+      <div>
+        <h2>Expense Details</h2>
+        <div id="expense-list"></div>
+      </div>
     </div>
+
     <button onclick="nextMonth()" style="margin-bottom: 10px; background-color: #ff4444; margin-top: 20px;">Next Month</button>
     <button onclick="exportToPDF()" style="margin-bottom: 20px;">Export to PDF</button>
     <button onclick="resetAll()" style="background-color: #f00; margin-bottom: 10px;">Reset</button>
@@ -136,6 +151,7 @@
     let totalExpenses = 0;
     let incomes = JSON.parse(localStorage.getItem('incomes')) || [];
     let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+    let currentPDFDoc = null;
 
     function saveToLocalStorage() {
       localStorage.setItem('incomes', JSON.stringify(incomes));
@@ -146,24 +162,17 @@
 
     function resetAll() {
       if (confirm('Are you sure you want to reset all data? This action cannot be undone.')) {
-        // Clear all data
         incomes = [];
         expenses = [];
         totalIncome = 0;
         totalExpenses = 0;
-        
-        // Clear localStorage
         localStorage.clear();
-        
-        // Clear the display
         document.getElementById('income-list').innerHTML = '';
         document.getElementById('expense-list').innerHTML = '';
-        document.getElementById('total-income').textContent = '0.00';
-        document.getElementById('total-expenses').textContent = '0.00';
-        document.getElementById('remaining-balance').textContent = '0.00';
+        document.getElementById('total-income').textContent = '0';
+        document.getElementById('total-expenses').textContent = '0';
+        document.getElementById('remaining-balance').textContent = '0';
         document.getElementById('remaining-balance').style.color = '#ffffff';
-        
-        // Clear input fields
         document.getElementById('income-name').value = '';
         document.getElementById('income-amount').value = '';
         document.getElementById('expense-name').value = '';
@@ -196,7 +205,7 @@
       const incomeBox = document.createElement('div');
       incomeBox.className = 'box';
       incomeBox.id = `income-${id}`;
-      incomeBox.innerHTML = `${name}: ${amount.toFixed(2)} تومان
+      incomeBox.innerHTML = `${name}: ${amount} T
         <button class="edit-button" onclick="openEditIncomePopup(${id})">Edit</button>
         <button onclick="deleteIncome(${id})">Delete</button>`;
       incomeList.appendChild(incomeBox);
@@ -227,7 +236,7 @@
       const expenseBox = document.createElement('div');
       expenseBox.className = 'box';
       expenseBox.id = `expense-${id}`;
-      expenseBox.innerHTML = `${name}: ${amount.toFixed(2)} تومان
+      expenseBox.innerHTML = `${name}: ${amount} T
         <button class="edit-button" onclick="openEditExpensePopup(${id})">Edit</button>
         <button onclick="deleteExpense(${id})">Delete</button>`;
       expenseList.appendChild(expenseBox);
@@ -242,7 +251,7 @@
         income.name = newName;
         income.amount = newAmount;
         totalIncome += newAmount;
-        document.getElementById(`income-${id}`).innerHTML = `${newName}: ${newAmount.toFixed(2)} تومان
+        document.getElementById(`income-${id}`).innerHTML = `${newName}: ${newAmount} T
           <button class="edit-button" onclick="openEditIncomePopup(${id})">Edit</button>
           <button onclick="deleteIncome(${id})">Delete</button>`;
         updateResults();
@@ -259,7 +268,7 @@
         expense.name = newName;
         expense.amount = newAmount;
         totalExpenses += newAmount;
-        document.getElementById(`expense-${id}`).innerHTML = `${newName}: ${newAmount.toFixed(2)} تومان
+        document.getElementById(`expense-${id}`).innerHTML = `${newName}: ${newAmount} T
           <button class="edit-button" onclick="openEditExpensePopup(${id})">Edit</button>
           <button onclick="deleteExpense(${id})">Delete</button>`;
         updateResults();
@@ -291,95 +300,119 @@
 
     function updateResults() {
       const remainingBalance = totalIncome - totalExpenses;
-      document.getElementById('total-income').textContent = totalIncome.toFixed(2);
-      document.getElementById('total-expenses').textContent = totalExpenses.toFixed(2);
-      document.getElementById('remaining-balance').textContent = remainingBalance.toFixed(2);
+      document.getElementById('total-income').textContent = totalIncome;
+      document.getElementById('total-expenses').textContent = totalExpenses;
+      document.getElementById('remaining-balance').textContent = remainingBalance;
       
-      // Update remaining balance color based on whether it's positive or negative
       if (remainingBalance >= 0) {
-        document.getElementById('remaining-balance').style.color = '#00ff00'; // Green for positive
+        document.getElementById('remaining-balance').style.color = '#00ff00';
       } else {
-        document.getElementById('remaining-balance').style.color = '#ff0000'; // Red for negative
+        document.getElementById('remaining-balance').style.color = '#ff0000';
       }
     }
 
     function exportToPDF() {
       const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
 
-      // Create a new instance of jsPDF with RTL support
-      const doc = new jsPDF({
-        orientation: 'p',
-        unit: 'mm',
-        format: 'a4',
-        putOnlyUsedFonts: true
-      });
+      // Add header with logo-like design
+      doc.setFillColor(240, 165, 0);
+      doc.rect(0, 0, doc.internal.pageSize.width, 40, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.text('Financial Report', doc.internal.pageSize.width/2, 25, { align: 'center' });
 
-      // Add title
-      doc.setFont("helvetica");
-      doc.setFontSize(18);
-      doc.text('Income and Expense Tracker', doc.internal.pageSize.width / 2, 20, { align: 'center' });
-
-      // Add summary
+      // Add date
+      doc.setTextColor(100, 100, 100);
       doc.setFontSize(12);
-      doc.text(`Total Income: ${totalIncome.toFixed(2)} تومان`, 20, 40);
-      doc.text(`Total Expenses: ${totalExpenses.toFixed(2)} تومان`, 20, 50);
-      doc.text(`Remaining Balance: ${(totalIncome - totalExpenses).toFixed(2)} تومان`, 20, 60);
+      doc.text(new Date().toLocaleDateString(), 20, 50);
 
-      // Sort incomes and expenses by amount
-      const sortedIncomes = [...incomes].sort((a, b) => b.amount - a.amount);
-      const sortedExpenses = [...expenses].sort((a, b) => b.amount - a.amount);
+      // Add summary box
+      doc.setDrawColor(240, 165, 0);
+      doc.setLineWidth(0.5);
+      doc.rect(20, 60, 170, 40);
+      
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(14);
+      doc.text('Summary', 25, 70);
+      doc.setFontSize(12);
+      doc.text(`Total Income: ${totalIncome} T`, 25, 80);
+      doc.text(`Total Expenses: ${totalExpenses} T`, 25, 90);
+      const balance = totalIncome - totalExpenses;
+      doc.setTextColor(balance >= 0 ? 0 : 255, balance >= 0 ? 100 : 0, 0);
+      doc.text(`Balance: ${balance} T`, 25, 100);
 
-      // Create income table
+      // Create income table with better styling
+      const incomeTableData = incomes.map(income => [income.name, `${income.amount} T`]);
       doc.autoTable({
-        startY: 80,
-        head: [['Income Name', 'Amount (تومان)']],
-        body: sortedIncomes.map(income => [income.name, income.amount.toFixed(2)]),
+        startY: 120,
+        head: [['Income Source', 'Amount']],
+        body: incomeTableData,
         theme: 'grid',
-        headStyles: { fillColor: [240, 165, 0] },
-        styles: { font: "helvetica", fontSize: 10 },
-        margin: { top: 80 }
+        headStyles: {
+          fillColor: [240, 165, 0],
+          textColor: [255, 255, 255],
+          fontSize: 12,
+          fontStyle: 'bold'
+        },
+        styles: {
+          fontSize: 11,
+          cellPadding: 5
+        },
+        alternateRowStyles: {
+          fillColor: [252, 242, 220]
+        }
       });
 
-      // Create expense table
+      // Create expense table with better styling
+      const expenseTableData = expenses.map(expense => [expense.name, `${expense.amount} T`]);
       doc.autoTable({
         startY: doc.lastAutoTable.finalY + 20,
-        head: [['Expense Name', 'Amount (تومان)']],
-        body: sortedExpenses.map(expense => [expense.name, expense.amount.toFixed(2)]),
+        head: [['Expense Category', 'Amount']],
+        body: expenseTableData,
         theme: 'grid',
-        headStyles: { fillColor: [255, 68, 68] },
-        styles: { font: "helvetica", fontSize: 10 }
+        headStyles: {
+          fillColor: [255, 68, 68],
+          textColor: [255, 255, 255],
+          fontSize: 12,
+          fontStyle: 'bold'
+        },
+        styles: {
+          fontSize: 11,
+          cellPadding: 5
+        },
+        alternateRowStyles: {
+          fillColor: [255, 230, 230]
+        }
       });
 
-      // Generate and download PDF
-      const pdfBlob = doc.output('blob');
-      const url = URL.createObjectURL(pdfBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'income-expense-tracker.pdf';
-      link.click();
-      URL.revokeObjectURL(url);
+      // Add footer
+      const pageCount = doc.internal.getNumberOfPages();
+      doc.setFontSize(10);
+      doc.setTextColor(150, 150, 150);
+      for(let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width/2, doc.internal.pageSize.height - 10, { align: 'center' });
+      }
+
+      // Open PDF in new window/tab
+      const pdfDataUri = doc.output('datauristring');
+      window.open(pdfDataUri, '_blank');
     }
 
     function nextMonth() {
       if (confirm('Are you sure you want to move to next month?')) {
-        // Ask if user wants to export to PDF
         const wantsPDF = confirm('Would you like to export current data to PDF?');
         if (wantsPDF) {
           exportToPDF();
         }
         
-        // Store the remaining balance
         const remainingBalance = totalIncome - totalExpenses;
-        
-        // Clear incomes and expenses arrays
         incomes = [];
         expenses = [];
-        
-        // Reset totals
         totalIncome = 0;
         totalExpenses = 0;
         
-        // Add remaining balance to appropriate category
         if (remainingBalance > 0) {
           const incomeId = Date.now();
           incomes.push({ id: incomeId, name: "Previous Month Balance", amount: remainingBalance });
@@ -393,21 +426,16 @@
           renderExpense(expenseId, "Previous Month Balance", absBalance);
         }
         
-        // Clear the displays
         document.getElementById('income-list').innerHTML = '';
         document.getElementById('expense-list').innerHTML = '';
         
-        // Re-render any remaining balance entries
         if (remainingBalance > 0) {
           incomes.forEach(income => renderIncome(income.id, income.name, income.amount));
         } else if (remainingBalance < 0) {
           expenses.forEach(expense => renderExpense(expense.id, expense.name, expense.amount));
         }
         
-        // Update display
         updateResults();
-        
-        // Save the new state
         saveToLocalStorage();
       }
     }
