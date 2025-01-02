@@ -17,91 +17,153 @@
     .container {
       max-width: 700px;
       margin: auto;
-      background-color: #1e1e1e;
+      background-color: #0a0a0a;
       padding: 20px;
       border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0, 167, 255, 0.1);
+      transition: transform 0.3s ease;
+    }
+    .container:hover {
+      transform: translateY(-5px);
     }
     h1 {
       text-align: center;
-      color: #f0a500;
+      color: #24A1DE;
+      animation: fadeIn 0.5s ease;
     }
     label {
       font-size: 1em;
-      color: #bdbdbd;
+      color: #e0e0e0;
+      display: block;
+      margin-bottom: 5px;
+      transition: color 0.3s ease;
+    }
+    label:hover {
+      color: #24A1DE;
     }
     input {
-      width: 95%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #333;
-      border-radius: 5px;
-      background-color: #252525;
+      width: 90%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      background-color: #151515;
       color: #ffffff;
+      font-size: 1em;
+      transition: all 0.3s ease;
+      border: none;
+      box-shadow: 0 0 10px rgba(0, 167, 255, 0.1);
+      align-self: center;
+    }
+    input:focus {
+      outline: none;
+      box-shadow: 0 0 15px rgba(0, 167, 255, 0.3);
+      transform: scale(1.01);
     }
     button {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       border: none;
-      border-radius: 5px;
-      background-color: #f0a500;
-      color: #121212;
+      border-radius: 8px;
+      background-color: #24A1DE;
+      color: #ffffff;
       font-weight: bold;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: all 0.3s ease;
     }
     button:hover {
-      background-color: #d48a00;
+      background-color: #006699;
+      transform: scale(1.02);
     }
     .result {
       margin-top: 20px;
       font-size: 1.1em;
-      background-color: #252525;
-      padding: 10px;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      background-color: #151515;
+      padding: 15px;
+      border-radius: 8px;
       margin-bottom: 20px;
+      box-shadow: 0 0 15px rgba(0, 167, 255, 0.1);
+      animation: slideIn 0.5s ease;
     }
     .result p {
       margin: 8px 0;
+      transition: transform 0.3s ease;
+    }
+    .result p:hover {
+      transform: translateX(5px);
     }
     span {
       font-weight: bold;
-      color: #f0a500;
+      color: #24A1DE;
+      transition: color 0.3s ease;
+    }
+    span:hover {
+      color: #0088cc;
     }
     .box {
-      background-color: #252525;
-      padding: 10px;
+      background-color: #151515;
+      padding: 15px;
       margin: 10px 0;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
       position: relative;
+      box-shadow: 0 0 10px rgba(0, 167, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+    .box:hover {
+      transform: scale(1.01);
     }
     .box button {
       position: absolute;
       top: 10px;
       right: 10px;
       width: auto;
-      padding: 5px;
-      background-color: #f00;
+      padding: 8px;
+      background-color: #cc0000;
       color: white;
       font-size: 0.9em;
-      border-radius: 3px;
+      border-radius: 4px;
     }
     .edit-button {
       position: absolute !important;
       right: 60px !important;
       margin-right: 5%;
-      background-color: #ffa500 !important;
+      background-color: #24A1DE !important;
     }
     .section {
-      background-color: #252525;
+      background-color: #151515;
       padding: 20px;
       margin: 20px 0;
       border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 167, 255, 0.1);
+      transition: all 0.3s ease;
+      animation: fadeIn 0.5s ease;
+    }
+    .section:hover {
+      transform: translateY(-3px);
     }
     .section h2 {
-      color: #f0a500;
+      color: #24A1DE;
       margin-top: 0;
+      transition: color 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
   </style>
 </head>
@@ -122,7 +184,7 @@
       <button onclick="addIncome()">Add Income</button>
 
       <div>
-        <h2>Income Details</h2>
+        <h2 style="margin-top: 10px;">Income Details</h2>
         <div id="income-list"></div>
       </div>
     </div>
@@ -136,7 +198,7 @@
       <button onclick="addExpense()">Add Expense</button>
 
       <div>
-        <h2>Expense Details</h2>
+        <h2 style="margin-top: 10px;">Expense Details</h2>
         <div id="expense-list"></div>
       </div>
     </div>
