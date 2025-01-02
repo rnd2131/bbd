@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services - BBD Manager</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .services-container {
+            max-width: 1000px;
+            padding: 2rem;
+            margin: 0 auto;
+        }
+
+        .service-card {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .service-card h3 {
+            color: var(--cyber-highlight);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .service-card p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .feature-list li::before {
+            content: "→";
+            color: var(--primary);
+            position: absolute;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="mohtava">
+        <div class="services-container">
+            <h1 style="color: var(--primary); margin-bottom: 3rem; text-align: center; font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px;">Our Services</h1>
+
+            <div class="service-card">
+                <h3>Data Management</h3>
+                <p>Comprehensive data management solution for your business needs.</p>
+                <ul class="feature-list">
+                    <li>Efficient data organization and storage</li>
+                    <li>Secure backup systems</li>
+                    <li>Easy data retrieval and search</li>
+                    <li>Real-time synchronization</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <h3>Business Process Automation</h3>
+                <p>Streamline your workflow with our automated solutions.</p>
+                <ul class="feature-list">
+                    <li>Automated task management</li>
+                    <li>Process optimization</li>
+                    <li>Custom workflow creation</li>
+                    <li>Performance tracking</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <h3>Analytics and Reporting</h3>
+                <p>Get valuable insights from your data with our advanced analytics tools.</p>
+                <ul class="feature-list">
+                    <li>Custom report generation</li>
+                    <li>Data visualization</li>
+                    <li>Trend analysis</li>
+                    <li>Performance metrics</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <h3>Security and Privacy</h3>
+                <p>Enterprise-grade security features to protect your sensitive data.</p>
+                <ul class="feature-list">
+                    <li>End-to-end encryption</li>
+                    <li>Access control management</li>
+                    <li>Regular security updates</li>
+                    <li>Compliance with privacy standards</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

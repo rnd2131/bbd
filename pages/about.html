@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - BBD Manager</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .about-container {
+            max-width: 800px;
+            padding: 2rem;
+            overflow: visible;
+        }
+        
+        .about-section {
+            margin-bottom: 4rem;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .about-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--cyber-highlight);
+            letter-spacing: 1px;
+        }
+
+        .about-section p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+        }
+
+        .privacy-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .privacy-list li {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .privacy-list li::before {
+            content: "•";
+            color: var(--primary);
+            position: absolute;
+            left: 0;
+        }
+
+        .footer-text {
+            text-align: center;
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="mohtava">
+        <div class="about-container">
+            <h1 style="color: var(--primary); margin-bottom: 3rem; text-align: center; font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px;">About BBD Manager</h1>
+            
+            <div class="about-section">
+                <h2>Developer</h2>
+                <p>Developed by <b style="color: var(--cyber-highlight);font-size: larger;">Radman</b></p>
+            </div>
+
+            <div class="about-section">
+                <h2>Copyright Notice</h2>
+                <p>© 2024 BBD Manager. All rights reserved.</p>
+                <p>No part of this application may be reproduced or transmitted in any form without prior written permission.</p>
+            </div>
+
+            <div class="about-section">
+                <h2>Privacy Policy</h2>
+                <p>At BBD Manager, we take your privacy seriously. Here's what you should know:</p>
+                <ul class="privacy-list">
+                    <li>We only collect essential information needed for the application to function</li>
+                    <li>Your data is stored securely and never shared with third parties</li>
+                    <li>We use industry-standard security measures to protect your information</li>
+                    <li>You can request access to or deletion of your data at any time</li>
+                </ul>
+            </div>
+
+            <p class="footer-text">For any questions or concerns, please contact us</p>
+        </div>
+    </div>
+</body>
+</html>

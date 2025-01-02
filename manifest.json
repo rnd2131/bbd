@@ -1,15 +1,15 @@
 {
-  "name": "BBD",
+  "name": "BBD Manager",
   "short_name": "BBD",
-  "start_url": "/index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#121212",
-  "theme_color": "##121212",
+  "theme_color": "#121212",
   "icons": [
     {
-      "src": "icon-512x512.png",
+      "src": "icon.png",
       "sizes": "512x512",
-      "type": "image/866868-modified.png"
+      "type": "image/png"
     }
   ]
 }

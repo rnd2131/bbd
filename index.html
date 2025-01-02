@@ -5,34 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BBD Manager</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icon.png">
 </head>
 <body>
     <nav>
-        <a href="#" class="nav-logo"><img src="Asset 1.svg" alt="logo"></a>
+        <a href="#" class="nav-logo"><img src="logo.png" alt="logo" style="width:35dvw; height: auto;"></a>
         <div class="hamburger" onclick="toggleMenu()">
             <div></div>
             <div></div>
             <div></div>
         </div>
         <div class="nav-links">
-            <a href="#">Home</a>
-            <a href="#">About</a>
-            <a href="#">Services</a>
-            <a href="#">Contact</a>
+            <a href="#" onclick="changeIframeSrc('system.html')">Home</a>
+            <a href="#" onclick="changeIframeSrc('./pages/about.html')">About</a>
+            <a href="#" onclick="changeIframeSrc('./pages/services.html')">Services</a>
+            <a href="#" onclick="changeIframeSrc('./pages/contact.html')">Contact</a>
         </div>
     </nav>
 
-    <iframe src="system.html" frameborder="0" style="border-radius: 0px; "></iframe>
+    <iframe id="mainFrame" src="system.html" frameborder="0" style="border-radius: 0px;"></iframe>
 
     <script>
         function toggleMenu() {
             const navLinks = document.querySelector('.nav-links');
             navLinks.classList.toggle('active');
         }
+
+        function changeIframeSrc(url) {
+            const mainFrame = document.getElementById('mainFrame');
+            mainFrame.src = url;
+
+            // Close mobile menu if open
+            const navLinks = document.querySelector('.nav-links');
+            if (navLinks.classList.contains('active')) {
+                navLinks.classList.remove('active');
+            }
+        }
     </script>
     <script>
         if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/service-worker.js')
+        navigator.serviceWorker.register('./service-worker.js')
             .then(registration => {
             console.log('Service Worker registered with scope:', registration.scope);
             })
