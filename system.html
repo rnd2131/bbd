@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Income and Expense Tracker</title>
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline';">
+  <!-- Add jsPDF library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -241,7 +243,7 @@
     </div>
 
     <button onclick="nextMonth()" style="margin-bottom: 10px; background-color: #ff4444; margin-top: 20px;">Next Month</button>
-    <button onclick="window.print()" style="margin-bottom: 20px;">Print Report</button>
+    <button onclick="generatePDF()" style="margin-bottom: 20px;">Download PDF Report</button>
     <button onclick="resetAll()" style="background-color: #f00; margin-bottom: 10px;">Reset</button>
   </div>
 
@@ -409,11 +411,47 @@
       }
     }
 
+    function generatePDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      // Add title
+      doc.setFontSize(20);
+      doc.text('Financial Report', 20, 20);
+      
+      // Add summary
+      doc.setFontSize(12);
+      doc.text(`Total Income: ${totalIncome} T`, 20, 40);
+      doc.text(`Total Expenses: ${totalExpenses} T`, 20, 50);
+      doc.text(`Remaining Balance: ${totalIncome - totalExpenses} T`, 20, 60);
+      
+      // Add income details
+      let y = 80;
+      doc.text('Income Details:', 20, y);
+      y += 10;
+      incomes.forEach(income => {
+        doc.text(`${income.name}: ${income.amount} T`, 30, y);
+        y += 10;
+      });
+      
+      // Add expense details
+      y += 10;
+      doc.text('Expense Details:', 20, y);
+      y += 10;
+      expenses.forEach(expense => {
+        doc.text(`${expense.name}: ${expense.amount} T`, 30, y);
+        y += 10;
+      });
+      
+      // Save the PDF
+      doc.save('financial-report.pdf');
+    }
+
     function nextMonth() {
       if (confirm('Are you sure you want to move to next month?')) {
-        const wantsPrint = confirm('Would you like to print current data?');
-        if (wantsPrint) {
-          window.print();
+        const wantsPDF = confirm('Would you like to download current data as PDF?');
+        if (wantsPDF) {
+          generatePDF();
         }
         
         const remainingBalance = totalIncome - totalExpenses;
