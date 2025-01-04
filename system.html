@@ -638,7 +638,7 @@
       if (confirm('Are you sure you want to move to next month?')) {
         const wantsPDF = confirm('Would you like to export current data to PDF?');
         if (wantsPDF) {
-          exportToPDF();
+          showErrorPopup();
         }
         
         const remainingBalance = totalIncome - totalExpenses;
