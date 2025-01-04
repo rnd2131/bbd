@@ -466,29 +466,14 @@
         doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width/2, doc.internal.pageSize.height - 10, { align: 'center' });
       }
 
-      // Generate PDF blob URL
-      const pdfBlob = doc.output('blob');
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-
-      // Create a temporary link element
-      const link = document.createElement('a');
+      // Generate filename with date and time
       const now = new Date();
       const date = now.toISOString().split('T')[0];
       const time = now.toTimeString().split(' ')[0].replace(/:/g, '-');
       const fileName = `financial_report_${date}_${time}.pdf`;
-      
-      link.href = pdfUrl;
-      link.download = fileName;
-      
-      // Append link to document, click it, and remove it
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Clean up the blob URL
-      setTimeout(() => {
-        URL.revokeObjectURL(pdfUrl);
-      }, 100);
+
+      // Save PDF directly
+      doc.save(fileName);
     }
 
     function nextMonth() {
