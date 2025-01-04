@@ -444,7 +444,8 @@
       });
       
       // Save the PDF
-      doc.save('financial-report.pdf');
+      const pdfData = doc.output('datauristring');
+      window.location.href = pdfData;
     }
 
     function nextMonth() {
