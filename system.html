@@ -458,13 +458,23 @@
         doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width/2, doc.internal.pageSize.height - 10, { align: 'center' });
       }
 
-      // Save PDF with a secure download method
+      // Generate PDF blob and create download link
+      const pdfBlob = doc.output('blob');
       const now = new Date();
       const date = now.toISOString().split('T')[0];
       const time = now.toTimeString().split(' ')[0].replace(/:/g, '-');
       const fileName = `financial_report_${date}_${time}.pdf`;
+
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(pdfBlob);
+      link.download = fileName;
       
-      doc.save(fileName);
+      // Trigger native save dialog
+      link.click();
+      
+      // Clean up
+      URL.revokeObjectURL(link.href);
     }
 
     function nextMonth() {
