@@ -42,8 +42,6 @@ nav {
 }
 
 .nav-logo {
-    height: auto;
-    width: 110px;
     display: flex;
     align-items: center;
     transition: var(--transition);

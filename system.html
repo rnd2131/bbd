@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Income and Expense Tracker</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline';">
   <style>
     body {
@@ -166,6 +164,44 @@
         transform: translateX(0);
       }
     }
+    @media print {
+      body {
+        background: white;
+        color: black;
+      }
+      .container {
+        background: white;
+        box-shadow: none;
+      }
+      .section {
+        background: white;
+        box-shadow: none;
+      }
+      .box {
+        background: white;
+        box-shadow: none;
+        border: 1px solid #ccc;
+      }
+      button {
+        display: none;
+      }
+      input {
+        display: none;
+      }
+      label {
+        display: none;
+      }
+      .result {
+        background: white;
+        color: black;
+      }
+      span {
+        color: black;
+      }
+      h2 {
+        color: black !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -205,7 +241,7 @@
     </div>
 
     <button onclick="nextMonth()" style="margin-bottom: 10px; background-color: #ff4444; margin-top: 20px;">Next Month</button>
-    <button onclick="exportToPDF()" style="margin-bottom: 20px;">Export to PDF</button>
+    <button onclick="window.print()" style="margin-bottom: 20px;">Print Report</button>
     <button onclick="resetAll()" style="background-color: #f00; margin-bottom: 10px;">Reset</button>
   </div>
 
@@ -214,7 +250,6 @@
     let totalExpenses = 0;
     let incomes = JSON.parse(localStorage.getItem('incomes')) || [];
     let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-    let currentPDFDoc = null;
 
     function saveToLocalStorage() {
       localStorage.setItem('incomes', JSON.stringify(incomes));
@@ -374,113 +409,11 @@
       }
     }
 
-    function exportToPDF() {
-      const userAgent = navigator.userAgent.toLowerCase();
-      const isSupportedBrowser = /chrome|firefox|edge|safari/.test(userAgent);
-
-      if (!isSupportedBrowser) {
-        alert('Please use Chrome, Firefox, Edge, or Safari to download PDF files.');
-        return;
-      }
-
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-
-      // Add header with logo-like design
-      doc.setFillColor(240, 165, 0);
-      doc.rect(0, 0, doc.internal.pageSize.width, 40, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(24);
-      doc.text('Financial Report', doc.internal.pageSize.width/2, 25, { align: 'center' });
-
-      // Add date
-      doc.setTextColor(100, 100, 100);
-      doc.setFontSize(12);
-      doc.text(new Date().toLocaleDateString(), 20, 50);
-
-      // Add summary box
-      doc.setDrawColor(240, 165, 0);
-      doc.setLineWidth(0.5);
-      doc.rect(20, 60, 170, 40);
-      
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(14);
-      doc.text('Summary', 25, 70);
-      doc.setFontSize(12);
-      doc.text(`Total Income: ${totalIncome} T`, 25, 80);
-      doc.text(`Total Expenses: ${totalExpenses} T`, 25, 90);
-      const balance = totalIncome - totalExpenses;
-      doc.setTextColor(balance >= 0 ? 0 : 255, balance >= 0 ? 100 : 0, 0);
-      doc.text(`Balance: ${balance} T`, 25, 100);
-
-      // Create income table with better styling
-      const incomeTableData = incomes.map(income => [income.name, `${income.amount} T`]);
-      doc.autoTable({
-        startY: 120,
-        head: [['Income Source', 'Amount']],
-        body: incomeTableData,
-        theme: 'grid',
-        headStyles: {
-          fillColor: [240, 165, 0],
-          textColor: [255, 255, 255],
-          fontSize: 12,
-          fontStyle: 'bold'
-        },
-        styles: {
-          fontSize: 11,
-          cellPadding: 5
-        },
-        alternateRowStyles: {
-          fillColor: [252, 242, 220]
-        }
-      });
-
-      // Create expense table with better styling
-      const expenseTableData = expenses.map(expense => [expense.name, `${expense.amount} T`]);
-      doc.autoTable({
-        startY: doc.lastAutoTable.finalY + 20,
-        head: [['Expense Category', 'Amount']],
-        body: expenseTableData,
-        theme: 'grid',
-        headStyles: {
-          fillColor: [255, 68, 68],
-          textColor: [255, 255, 255],
-          fontSize: 12,
-          fontStyle: 'bold'
-        },
-        styles: {
-          fontSize: 11,
-          cellPadding: 5
-        },
-        alternateRowStyles: {
-          fillColor: [255, 230, 230]
-        }
-      });
-
-      // Add footer
-      const pageCount = doc.internal.getNumberOfPages();
-      doc.setFontSize(10);
-      doc.setTextColor(150, 150, 150);
-      for(let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width/2, doc.internal.pageSize.height - 10, { align: 'center' });
-      }
-
-      // Generate filename with date and time
-      const now = new Date();
-      const date = now.toISOString().split('T')[0];
-      const time = now.toTimeString().split(' ')[0].replace(/:/g, '-');
-      const fileName = `financial_report_${date}_${time}.pdf`;
-
-      // Save PDF directly
-      doc.save(fileName);
-    }
-
     function nextMonth() {
       if (confirm('Are you sure you want to move to next month?')) {
-        const wantsPDF = confirm('Would you like to export current data to PDF?');
-        if (wantsPDF) {
-          exportToPDF();
+        const wantsPrint = confirm('Would you like to print current data?');
+        if (wantsPrint) {
+          window.print();
         }
         
         const remainingBalance = totalIncome - totalExpenses;
