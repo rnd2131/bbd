@@ -207,6 +207,20 @@
       background: #24A1DE !important;
     }
 
+    .pdf-btn {
+      width: auto !important;
+      padding: 10px 20px !important;
+      margin: 10px !important;
+      background: #24A1DE !important;
+    }
+
+    .share-btn {
+      width: auto !important;
+      padding: 10px 20px !important;
+      margin: 10px !important;
+      background: #24A1DE !important;
+    }
+
     #error-financial-info {
       margin: 20px 0;
       padding: 20px;
@@ -252,17 +266,19 @@
     </div>
 
     <button onclick="nextMonth()" style="margin-bottom: 10px; background-color: #ff4444; margin-top: 20px;">Next Month</button>
-    <button onclick="exportToPDF()" style="margin-bottom: 20px;">Export to PDF</button>
+    <button onclick="showErrorPopup()" style="margin-bottom: 20px;">Export Data</button>
     <button onclick="resetAll()" style="background-color: #f00; margin-bottom: 10px;">Reset</button>
   </div>
 
   <!-- Error popup -->
   <div id="error-popup" class="error-popup">
     <div class="error-content">
-      <button class="close-btn" onclick="closeErrorPopup()">×</button>
+      <button class="close-btn" onclick="closeErrorPopup()">X</button>
       <h2>Financial Report</h2>
       <div id="error-financial-info"></div>
       <button class="screenshot-btn" onclick="takeScreenshot()">Take Screenshot</button>
+      <button class="pdf-btn" onclick="exportToPDF()">Export to PDF</button>
+      <button class="share-btn" onclick="shareData()">Share</button>
     </div>
   </div>
 
@@ -580,6 +596,44 @@
       }
     }
 
+    async function shareData() {
+      const financialData = {
+        totalIncome,
+        totalExpenses,
+        balance: totalIncome - totalExpenses,
+        incomes,
+        expenses
+      };
+
+      const text = `Financial Report\n\n` +
+        `Total Income: ${financialData.totalIncome} T\n` +
+        `Total Expenses: ${financialData.totalExpenses} T\n` +
+        `Balance: ${financialData.balance} T\n\n` +
+        `Income Details:\n${incomes.map(i => `${i.name}: ${i.amount} T`).join('\n')}\n\n` +
+        `Expense Details:\n${expenses.map(e => `${e.name}: ${e.amount} T`).join('\n')}`;
+
+      try {
+        if (navigator.share) {
+          await navigator.share({
+            title: 'Financial Report',
+            text: text
+          });
+        } else {
+          // Fallback for browsers that don't support Web Share API
+          const textArea = document.createElement('textarea');
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          alert('Report copied to clipboard!');
+        }
+      } catch (error) {
+        console.error('Error sharing data:', error);
+        alert('Failed to share report. Please try again.');
+      }
+    }
+
     function nextMonth() {
       if (confirm('Are you sure you want to move to next month?')) {
         const wantsPDF = confirm('Would you like to export current data to PDF?');
@@ -619,6 +673,7 @@
         saveToLocalStorage();
       }
     }
+
 
     // Initial render
     totalIncome = parseFloat(localStorage.getItem('totalIncome')) || 0;
