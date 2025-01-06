@@ -1,0 +1,18 @@
+{
+  "name": "bbd",
+  "version": "1.0.0",
+  "description": ".",
+  "main": "index.html",
+  "scripts": {
+    "test": "allow"
+  },
+  "repository": {
+    "type": "git",
+    "url": "bbd"
+  },
+  "keywords": [
+    "bbd"
+  ],
+  "author": "rnd2131",
+  "license": "ISC"
+}
