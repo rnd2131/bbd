@@ -9,6 +9,7 @@ const urlsToCache = [
   '/pages/about.html',
   '/pages/contact.html',
   '/pages/services.html',
+  '/manifest.json',
 ];
 
 // Install the service worker and cache all the assets
