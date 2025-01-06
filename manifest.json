@@ -1,8 +1,8 @@
 {
     "name": "BBD Manager",
-    "short_name": "BBDM",
+    "short_name": "BBD",
     "start_url": "https://bbd-bay.vercel.app/",
-    "display": "fullscreen",
+    "display": "standalone",
     "background_color": "#000000",
     "theme_color": "#00ff95",
     "description": "BBD PWA",
