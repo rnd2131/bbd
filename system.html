@@ -4,10 +4,719 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Income and Expense Tracker</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#00ff95">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://html2canvas.hertzen.com; style-src 'self' 'unsafe-inline';">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: transparent;
+      color: #ffffff;
+      margin: 20px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background-color: #0a0a0a;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0, 167, 255, 0.1);
+      transition: transform 0.3s ease;
+    }
+    .container:hover {
+      transform: translateY(-5px);
+    }
+    h1 {
+      text-align: center;
+      color: #24A1DE;
+      animation: fadeIn 0.5s ease;
+    }
+    label {
+      font-size: 1em;
+      color: #e0e0e0;
+      display: block;
+      margin-bottom: 5px;
+      transition: color 0.3s ease;
+    }
+    label:hover {
+      color: #24A1DE;
+    }
+    input {
+      width: 90%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      background-color: #151515;
+      color: #ffffff;
+      font-size: 1em;
+      transition: all 0.3s ease;
+      border: none;
+      box-shadow: 0 0 10px rgba(0, 167, 255, 0.1);
+      align-self: center;
+    }
+    input:focus {
+      outline: none;
+      box-shadow: 0 0 15px rgba(0, 167, 255, 0.3);
+      transform: scale(1.01);
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background-color: #24A1DE;
+      color: #ffffff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background-color: #006699;
+      transform: scale(1.02);
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.1em;
+      background-color: #151515;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 15px rgba(0, 167, 255, 0.1);
+      animation: slideIn 0.5s ease;
+    }
+    .result p {
+      margin: 8px 0;
+      transition: transform 0.3s ease;
+    }
+    .result p:hover {
+      transform: translateX(5px);
+    }
+    span {
+      font-weight: bold;
+      color: #24A1DE;
+      transition: color 0.3s ease;
+    }
+    span:hover {
+      color: #0088cc;
+    }
+    .box {
+      background-color: #151515;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      position: relative;
+      box-shadow: 0 0 10px rgba(0, 167, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+    .box:hover {
+      transform: scale(1.01);
+    }
+    .box button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: auto;
+      padding: 8px;
+      background-color: #cc0000;
+      color: white;
+      font-size: 0.9em;
+      border-radius: 4px;
+    }
+    .edit-button {
+      position: absolute !important;
+      right: 60px !important;
+      margin-right: 5%;
+      background-color: #24A1DE !important;
+    }
+    .section {
+      background-color: #151515;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 167, 255, 0.1);
+      transition: all 0.3s ease;
+      animation: fadeIn 0.5s ease;
+    }
+    .section:hover {
+      transform: translateY(-3px);
+    }
+    .section h2 {
+      color: #24A1DE;
+      margin-top: 0;
+      transition: color 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* New styles for error popup */
+    .error-popup {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+    }
+
+    .error-content {
+      position: relative;
+      width: 80%;
+      max-width: 800px;
+      margin: 50px auto;
+      background: #0a0a0a;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,167,255,0.2);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: auto !important;
+      padding: 5px 10px !important;
+      background: #cc0000 !important;
+    }
+
+    .screenshot-btn {
+      width: auto !important;
+      padding: 10px 20px !important;
+      margin: 10px !important;
+      background: #24A1DE !important;
+    }
+
+    .pdf-btn {
+      width: auto !important;
+      padding: 10px 20px !important;
+      margin: 10px !important;
+      background: #24A1DE !important;
+    }
+
+    .share-btn {
+      width: auto !important;
+      padding: 10px 20px !important;
+      margin: 10px !important;
+      background: #24A1DE !important;
+    }
+
+    #error-financial-info {
+      margin: 20px 0;
+      padding: 20px;
+      background: #151515;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="result">
+        <p>Total Income: <span id="total-income">0</span> T</p>
+        <p>Total Expenses: <span id="total-expenses">0</span> T</p>
+        <p>Remaining Balance: <span id="remaining-balance">0</span> T</p>
+    </div>
+
+    <div class="section">
+      <h2>Income Section</h2>
+      <label for="income-name">Income Name:</label>
+      <input type="text" id="income-name" placeholder="Enter income name">
+      <label for="income-amount">Income Amount:</label>
+      <input type="number" id="income-amount" placeholder="Enter income amount">
+      <button onclick="addIncome()">Add Income</button>
+
+      <div>
+        <h2 style="margin-top: 10px;">Income Details</h2>
+        <div id="income-list"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Expense Section</h2>
+      <label for="expense-name">Expense Name:</label>
+      <input type="text" id="expense-name" placeholder="Enter expense name">
+      <label for="expense-amount">Expense Amount:</label>
+      <input type="number" id="expense-amount" placeholder="Enter expense amount">
+      <button onclick="addExpense()">Add Expense</button>
+
+      <div>
+        <h2 style="margin-top: 10px;">Expense Details</h2>
+        <div id="expense-list"></div>
+      </div>
+    </div>
+
+    <button onclick="nextMonth()" style="margin-bottom: 10px; background-color: #ff4444; margin-top: 20px;">Next Month</button>
+    <button onclick="showErrorPopup()" style="margin-bottom: 20px;">Export Data</button>
+    <button onclick="resetAll()" style="background-color: #f00; margin-bottom: 10px;">Reset</button>
+    <button onclick="downloadPDF()" style="background-color: #24A1DE; margin-bottom: 10px;">Download PDF</button>
+    <button onclick="downloadPNG()" style="background-color: #24A1DE; margin-bottom: 10px;">Download PNG</button>
+  </div>
+
+  <!-- Error popup -->
+  <div id="error-popup" class="error-popup">
+    <div class="error-content">
+      <button class="close-btn" onclick="closeErrorPopup()">X</button>
+      <h2>Financial Report</h2>
+      <div id="error-financial-info"></div>
+      <button class="screenshot-btn" onclick="takeScreenshot()">Take Screenshot</button>
+      <button class="pdf-btn" onclick="exportToPDF()">Export to PDF</button>
+      <button class="share-btn" onclick="shareData()">Share</button>
+    </div>
+  </div>
+
+  <script>
+    let totalIncome = 0;
+    let totalExpenses = 0;
+    let incomes = JSON.parse(localStorage.getItem('incomes')) || [];
+    let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+    let currentPDFDoc = null;
+
+    function saveToLocalStorage() {
+      localStorage.setItem('incomes', JSON.stringify(incomes));
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+      localStorage.setItem('totalIncome', totalIncome);
+      localStorage.setItem('totalExpenses', totalExpenses);
+    }
+
+    function resetAll() {
+      if (confirm('Are you sure you want to reset all data? This action cannot be undone.')) {
+        incomes = [];
+        expenses = [];
+        totalIncome = 0;
+        totalExpenses = 0;
+        localStorage.clear();
+        document.getElementById('income-list').innerHTML = '';
+        document.getElementById('expense-list').innerHTML = '';
+        document.getElementById('total-income').textContent = '0';
+        document.getElementById('total-expenses').textContent = '0';
+        document.getElementById('remaining-balance').textContent = '0';
+        document.getElementById('remaining-balance').style.color = '#ffffff';
+        document.getElementById('income-name').value = '';
+        document.getElementById('income-amount').value = '';
+        document.getElementById('expense-name').value = '';
+        document.getElementById('expense-amount').value = '';
+      }
+    }
+
+    function addIncome() {
+      const incomeNameInput = document.getElementById('income-name');
+      const incomeAmountInput = document.getElementById('income-amount');
+      const incomeName = incomeNameInput.value.trim();
+      const incomeAmount = parseFloat(incomeAmountInput.value);
+
+      if (incomeName && !isNaN(incomeAmount) && incomeAmount > 0) {
+        const incomeId = Date.now();
+        incomes.push({ id: incomeId, name: incomeName, amount: incomeAmount });
+        totalIncome += incomeAmount;
+        renderIncome(incomeId, incomeName, incomeAmount);
+        incomeNameInput.value = '';
+        incomeAmountInput.value = '';
+        updateResults();
+        saveToLocalStorage();
+      } else {
+        alert('Please enter a valid income name and amount');
+      }
+    }
+
+    function renderIncome(id, name, amount) {
+      const incomeList = document.getElementById('income-list');
+      const incomeBox = document.createElement('div');
+      incomeBox.className = 'box';
+      incomeBox.id = `income-${id}`;
+      incomeBox.innerHTML = `${name}: ${amount} T
+        <button class="edit-button" onclick="openEditIncomePopup(${id})">Edit</button>
+        <button onclick="deleteIncome(${id})">Delete</button>`;
+      incomeList.appendChild(incomeBox);
+    }
+
+    function addExpense() {
+      const expenseNameInput = document.getElementById('expense-name');
+      const expenseAmountInput = document.getElementById('expense-amount');
+      const expenseName = expenseNameInput.value.trim();
+      const expenseAmount = parseFloat(expenseAmountInput.value);
+
+      if (expenseName && !isNaN(expenseAmount) && expenseAmount > 0) {
+        const expenseId = Date.now();
+        expenses.push({ id: expenseId, name: expenseName, amount: expenseAmount });
+        totalExpenses += expenseAmount;
+        renderExpense(expenseId, expenseName, expenseAmount);
+        expenseNameInput.value = '';
+        expenseAmountInput.value = '';
+        updateResults();
+        saveToLocalStorage();
+      } else {
+        alert('Please enter a valid expense name and amount');
+      }
+    }
+
+    function renderExpense(id, name, amount) {
+      const expenseList = document.getElementById('expense-list');
+      const expenseBox = document.createElement('div');
+      expenseBox.className = 'box';
+      expenseBox.id = `expense-${id}`;
+      expenseBox.innerHTML = `${name}: ${amount} T
+        <button class="edit-button" onclick="openEditExpensePopup(${id})">Edit</button>
+        <button onclick="deleteExpense(${id})">Delete</button>`;
+      expenseList.appendChild(expenseBox);
+    }
+
+    function openEditIncomePopup(id) {
+      const income = incomes.find(i => i.id === id);
+      const newName = prompt('Edit income name:', income.name);
+      const newAmount = parseFloat(prompt('Edit income amount:', income.amount));
+      if (newName && !isNaN(newAmount) && newAmount > 0) {
+        totalIncome -= income.amount;
+        income.name = newName;
+        income.amount = newAmount;
+        totalIncome += newAmount;
+        document.getElementById(`income-${id}`).innerHTML = `${newName}: ${newAmount} T
+          <button class="edit-button" onclick="openEditIncomePopup(${id})">Edit</button>
+          <button onclick="deleteIncome(${id})">Delete</button>`;
+        updateResults();
+        saveToLocalStorage();
+      }
+    }
+
+    function openEditExpensePopup(id) {
+      const expense = expenses.find(e => e.id === id);
+      const newName = prompt('Edit expense name:', expense.name);
+      const newAmount = parseFloat(prompt('Edit expense amount:', expense.amount));
+      if (newName && !isNaN(newAmount) && newAmount > 0) {
+        totalExpenses -= expense.amount;
+        expense.name = newName;
+        expense.amount = newAmount;
+        totalExpenses += newAmount;
+        document.getElementById(`expense-${id}`).innerHTML = `${newName}: ${newAmount} T
+          <button class="edit-button" onclick="openEditExpensePopup(${id})">Edit</button>
+          <button onclick="deleteExpense(${id})">Delete</button>`;
+        updateResults();
+        saveToLocalStorage();
+      }
+    }
+
+    function deleteIncome(id) {
+      const income = incomes.find(i => i.id === id);
+      if (confirm('Are you sure you want to delete this income?')) {
+        totalIncome -= income.amount;
+        incomes = incomes.filter(i => i.id !== id);
+        document.getElementById(`income-${id}`).remove();
+        updateResults();
+        saveToLocalStorage();
+      }
+    }
+
+    function deleteExpense(id) {
+      const expense = expenses.find(e => e.id === id);
+      if (confirm('Are you sure you want to delete this expense?')) {
+        totalExpenses -= expense.amount;
+        expenses = expenses.filter(e => e.id !== id);
+        document.getElementById(`expense-${id}`).remove();
+        updateResults();
+        saveToLocalStorage();
+      }
+    }
+
+    function updateResults() {
+      const remainingBalance = totalIncome - totalExpenses;
+      document.getElementById('total-income').textContent = totalIncome;
+      document.getElementById('total-expenses').textContent = totalExpenses;
+      document.getElementById('remaining-balance').textContent = remainingBalance;
+      
+      if (remainingBalance >= 0) {
+        document.getElementById('remaining-balance').style.color = '#00ff00';
+      } else {
+        document.getElementById('remaining-balance').style.color = '#ff0000';
+      }
+    }
+
+    function showErrorPopup() {
+      const popup = document.getElementById('error-popup');
+      const infoDiv = document.getElementById('error-financial-info');
+      
+      // Generate financial info HTML
+      let infoHTML = `
+        <h3>Financial Summary</h3>
+        <p>Total Income: ${totalIncome} T</p>
+        <p>Total Expenses: ${totalExpenses} T</p>
+        <p>Remaining Balance: ${totalIncome - totalExpenses} T</p>
+        
+        <h3>Income Details</h3>
+        ${incomes.map(income => `<p>${income.name}: ${income.amount} T</p>`).join('')}
+        
+        <h3>Expense Details</h3>
+        ${expenses.map(expense => `<p>${expense.name}: ${expense.amount} T</p>`).join('')}
+      `;
+      
+      infoDiv.innerHTML = infoHTML;
+      popup.style.display = 'block';
+    }
+
+    function closeErrorPopup() {
+      document.getElementById('error-popup').style.display = 'none';
+    }
+
+    async function takeScreenshot() {
+      const element = document.getElementById('error-financial-info');
+      try {
+        const canvas = await html2canvas(element);
+        const image = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = 'financial_report.png';
+        link.click();
+      } catch (error) {
+        console.error('Screenshot failed:', error);
+        alert('Failed to take screenshot. Please try again.');
+      }
+    }
+
+    function exportToPDF() {
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Add header with logo-like design
+        doc.setFillColor(240, 165, 0);
+        doc.rect(0, 0, doc.internal.pageSize.width, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.text('Financial Report', doc.internal.pageSize.width/2, 25, { align: 'center' });
+
+        // Add date
+        doc.setTextColor(100, 100, 100);
+        doc.setFontSize(12);
+        doc.text(new Date().toLocaleDateString(), 20, 50);
+
+        // Add summary box
+        doc.setDrawColor(240, 165, 0);
+        doc.setLineWidth(0.5);
+        doc.rect(20, 60, 170, 40);
+        
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(14);
+        doc.text('Summary', 25, 70);
+        doc.setFontSize(12);
+        doc.text(`Total Income: ${totalIncome} T`, 25, 80);
+        doc.text(`Total Expenses: ${totalExpenses} T`, 25, 90);
+        const balance = totalIncome - totalExpenses;
+        doc.setTextColor(balance >= 0 ? 0 : 255, balance >= 0 ? 100 : 0, 0);
+        doc.text(`Balance: ${balance} T`, 25, 100);
+
+        // Create income table with better styling
+        const incomeTableData = incomes.map(income => [income.name, `${income.amount} T`]);
+        doc.autoTable({
+          startY: 120,
+          head: [['Income Source', 'Amount']],
+          body: incomeTableData,
+          theme: 'grid',
+          headStyles: {
+            fillColor: [240, 165, 0],
+            textColor: [255, 255, 255],
+            fontSize: 12,
+            fontStyle: 'bold'
+          },
+          styles: {
+            fontSize: 11,
+            cellPadding: 5
+          },
+          alternateRowStyles: {
+            fillColor: [252, 242, 220]
+          }
+        });
+
+        // Create expense table with better styling
+        const expenseTableData = expenses.map(expense => [expense.name, `${expense.amount} T`]);
+        doc.autoTable({
+          startY: doc.lastAutoTable.finalY + 20,
+          head: [['Expense Category', 'Amount']],
+          body: expenseTableData,
+          theme: 'grid',
+          headStyles: {
+            fillColor: [255, 68, 68],
+            textColor: [255, 255, 255],
+            fontSize: 12,
+            fontStyle: 'bold'
+          },
+          styles: {
+            fontSize: 11,
+            cellPadding: 5
+          },
+          alternateRowStyles: {
+            fillColor: [255, 230, 230]
+          }
+        });
+
+        // Add footer
+        const pageCount = doc.internal.getNumberOfPages();
+        doc.setFontSize(10);
+        doc.setTextColor(150, 150, 150);
+        for(let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width/2, doc.internal.pageSize.height - 10, { align: 'center' });
+        }
+
+        // Generate PDF blob and create download link
+        const pdfBlob = doc.output('blob');
+        const now = new Date();
+        const date = now.toISOString().split('T')[0];
+        const time = now.toTimeString().split(' ')[0].replace(/:/g, '-');
+        const fileName = `financial_report_${date}_${time}.pdf`;
+
+        // Create a temporary link element
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(pdfBlob);
+        link.download = fileName;
+        
+        // Trigger native save dialog
+        link.click();
+        
+        // Clean up
+        URL.revokeObjectURL(link.href);
+      } catch (error) {
+        console.error('PDF generation failed:', error);
+        showErrorPopup();
+      }
+    }
+
+    async function shareData() {
+      const financialData = {
+        totalIncome,
+        totalExpenses,
+        balance: totalIncome - totalExpenses,
+        incomes,
+        expenses
+      };
+
+      const text = `Financial Report\n\n` +
+        `Total Income: ${financialData.totalIncome} T\n` +
+        `Total Expenses: ${financialData.totalExpenses} T\n` +
+        `Balance: ${financialData.balance} T\n\n` +
+        `Income Details:\n${incomes.map(i => `${i.name}: ${i.amount} T`).join('\n')}\n\n` +
+        `Expense Details:\n${expenses.map(e => `${e.name}: ${e.amount} T`).join('\n')}`;
+
+      try {
+        if (navigator.share) {
+          await navigator.share({
+            title: 'Financial Report',
+            text: text
+          });
+        } else {
+          // Fallback for browsers that don't support Web Share API
+          const textArea = document.createElement('textarea');
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          alert('Report copied to clipboard!');
+        }
+      } catch (error) {
+        console.error('Error sharing data:', error);
+        alert('Failed to share report. Please try again.');
+      }
+    }
+
+    function nextMonth() {
+      if (confirm('Are you sure you want to move to next month?')) {
+        const wantsPDF = confirm('Would you like to export current data to PDF?');
+        if (wantsPDF) {
+          showErrorPopup();
+        }
+        
+        const remainingBalance = totalIncome - totalExpenses;
+        incomes = [];
+        expenses = [];
+        totalIncome = 0;
+        totalExpenses = 0;
+        
+        if (remainingBalance > 0) {
+          const incomeId = Date.now();
+          incomes.push({ id: incomeId, name: "Previous Month Balance", amount: remainingBalance });
+          totalIncome = remainingBalance;
+          renderIncome(incomeId, "Previous Month Balance", remainingBalance);
+        } else if (remainingBalance < 0) {
+          const expenseId = Date.now();
+          const absBalance = Math.abs(remainingBalance);
+          expenses.push({ id: expenseId, name: "Previous Month Balance", amount: absBalance });
+          totalExpenses = absBalance;
+          renderExpense(expenseId, "Previous Month Balance", absBalance);
+        }
+        
+        document.getElementById('income-list').innerHTML = '';
+        document.getElementById('expense-list').innerHTML = '';
+        
+        if (remainingBalance > 0) {
+          incomes.forEach(income => renderIncome(income.id, income.name, income.amount));
+        } else if (remainingBalance < 0) {
+          expenses.forEach(expense => renderExpense(expense.id, expense.name, expense.amount));
+        }
+        
+        updateResults();
+        saveToLocalStorage();
+      }
+    }
+
+    async function downloadPDF() {
+      try {
+        const response = await fetch('https://bbd-dun.vercel.app/files/download/pdf');
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'report.pdf';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Error downloading PDF:', error);
+      }
+    }
+
+    async function downloadPNG() {
+      try {
+        const response = await fetch('https://bbd-dun.vercel.app//files/download/png');
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'image.png';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Error downloading PNG:', error);
+      }
+    }
+
+    // Initial render
+    totalIncome = parseFloat(localStorage.getItem('totalIncome')) || 0;
+    totalExpenses = parseFloat(localStorage.getItem('totalExpenses')) || 0;
+    incomes.forEach(income => renderIncome(income.id, income.name, income.amount));
+    expenses.forEach(expense => renderExpense(expense.id, expense.name, expense.amount));
+    updateResults();
+  </script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/service-worker.js')
@@ -19,33 +728,5 @@
         });
     }
   </script>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #0a0a0a;
-      color: #ffffff;
-      margin: 20px;
-      line-height: 1.6;
-    }
-    .container {
-      max-width: 700px;
-      margin: auto;
-      background-color: #151515;
-      padding: 20px;
-      border-radius: 20px;
-      box-shadow: 0 0 20px rgba(0, 167, 255, 0.1);
-    }
-    h1 {
-      text-align: center;
-      color: #24A1DE;
-    }
-    /* Additional styles can be added here */
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Income and Expense Tracker</h1>
-    <!-- Content for the income and expense tracker goes here -->
-  </div>
 </body>
 </html>

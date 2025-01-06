@@ -5,25 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BBD Manager</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="icon.png">
-    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="logo.png">
 </head>
 <body>
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js')
-                .then(registration => {
-                    console.log('Service Worker registered with scope:', registration.scope);
-                })
-                .catch(error => {
-                    console.error('Service Worker registration failed:', error);
-                });
+        if (typeof navigator.serviceWorker !== 'undefined') {
+          navigator.serviceWorker.register('sw.js')
         }
     </script>
     <nav>
-        <a href="#" class="nav-logo"><img src="logo.png" alt="logo" style="width:35dvw; max-width: 150px; height: auto;"></a>
+        <a href="#" class="nav-logo"><img src="./icon.png" alt="logo" style="width:35dvw; max-width: 150px; height: auto;"></a>
         <div style="width: 10px; height: 10px; background-color: #00ff3c00; border-radius: 50%; margin: 0 0px; position: absolute; left: 10px;top: 10%;"></div>
         <div class="hamburger" onclick="toggleMenu()">
             <div></div>
@@ -50,10 +43,22 @@
             const mainFrame = document.getElementById('mainFrame');
             mainFrame.src = url;
 
+            // Close mobile menu if open
             const navLinks = document.querySelector('.nav-links');
             if (navLinks.classList.contains('active')) {
                 navLinks.classList.remove('active');
             }
+        }
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js')
+            .then(registration => {
+            console.log('Service Worker registered with scope:', registration.scope);
+            })
+            .catch(error => {
+            console.error('Service Worker registration failed:', error);
+            });
         }
     </script>
 </body>
