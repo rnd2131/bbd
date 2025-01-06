@@ -8,7 +8,7 @@ const urlsToCache = [
   '/icon.png',
   '/pages/about.html',
   '/pages/contact.html',
-  '/pages/services.html'
+  '/pages/services.html',
 ];
 
 // Install the service worker and cache all the assets
